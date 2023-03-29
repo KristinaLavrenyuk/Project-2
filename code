@@ -1,0 +1,603 @@
+
+#include <iostream>
+#include <windows.h>
+using namespace std;
+
+HDC hdc = GetDC(GetConsoleWindow());
+COLORREF White = RGB(255, 255, 255);
+COLORREF Black = RGB(0, 0, 0);
+
+short I[4][1] = 
+{
+    {1},
+    {1},
+    {1},
+    {1}
+};
+
+short J[3][2] =
+{
+    {0, 1},
+    {0, 1},
+    {1, 1}
+};
+
+short L[3][2] =
+{
+    {1, 0},
+    {1, 0},
+    {1, 1}
+};
+
+short O[2][2] =
+{
+    {1, 1},
+    {1, 1}
+};
+
+short S[2][3] =
+{
+    {0, 1, 1},
+    {1, 1, 0}
+};
+
+short T[2][3] =
+{
+    {1, 1, 1},
+    {0, 1, 0}
+};
+
+short Z[2][3] =
+{
+    {1, 1, 0},
+    {0, 1, 1}
+};
+
+short scene[20][10]{};
+
+struct
+{
+    int x[4]{};       // Координата X каждой клетки
+    int y[4]{};       // Координата Y каждой клетки
+    int timeForMove = 0;
+    int StartX;     // Значение Х, которое мы передали с самого начала
+    int StartY;     // Значение Y, которое мы передали с самого начала
+    int pastX[4]{};      // Значения Х, которое было передано в прошлом вызове функции
+    int pastY[4]{};      // Значения Y, которое было передано в прошлом вызове функции
+    char choose;    // Фигура, с которой мы работаем
+    short counterOfCages = 0;
+
+    void CreateChooseOfFigure()
+    {
+        choose = (rand() % 7) + 1;
+        switch (choose)
+        {
+        case 1:
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 1; j++)
+                {
+                    if (I[i][j] == 1)
+                    {
+                        x[counterOfCages] = j;
+                        y[counterOfCages] = i;
+                        counterOfCages++;
+                    }
+                }
+            }
+            break;
+        case 2:
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (L[i][j] == 1)
+                    {
+                        x[counterOfCages] = j;
+                        y[counterOfCages] = i;
+                        counterOfCages++;
+                    }
+                }
+            }
+            break;
+        case 3:
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (J[i][j] == 1)
+                    {
+                        x[counterOfCages] = j;
+                        y[counterOfCages] = i;
+                        counterOfCages++;
+                    }
+                }
+            }
+            break;
+        case 4:
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (O[i][j] == 1)
+                    {
+                        x[counterOfCages] = j;
+                        y[counterOfCages] = i;
+                        counterOfCages++;
+                    }
+                }
+            }
+            break;
+        case 5:
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (S[i][j] == 1)
+                    {
+                        x[counterOfCages] = j;
+                        y[counterOfCages] = i;
+                        counterOfCages++;
+                    }
+                }
+            }
+            break;
+        case 6:
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (T[i][j] == 1)
+                    {
+                        x[counterOfCages] = j;
+                        y[counterOfCages] = i;
+                        counterOfCages++;
+                    }
+                }
+            }
+            break;
+        case 7:
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (Z[i][j] == 1)
+                    {
+                        x[counterOfCages] = j;
+                        y[counterOfCages] = i;
+                        counterOfCages++;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    
+    void DrawRandomFigure()
+    {
+        counterOfCages = 0;
+        switch (choose)
+        {
+        case 1:
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 1; j++)
+                {
+                    if (I[i][j] == 1)
+                    {
+                        scene[pastY[counterOfCages]][pastX[counterOfCages]] = 0;
+                        counterOfCages++;
+                    }
+                }
+            }
+            counterOfCages = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 1; j++)
+                {
+                    if (I[i][j] == 1)
+                    {
+                        scene[y[counterOfCages]][x[counterOfCages]] = I[i][j];
+                        counterOfCages++;
+                        pastY[counterOfCages] = y[counterOfCages];
+                        pastX[counterOfCages] = x[counterOfCages];
+                    }
+                }
+            }
+            break;
+        case 2:
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (L[i][j] == 1)
+                    {
+                        scene[pastY[counterOfCages]][pastX[counterOfCages]] = 0;
+                        counterOfCages++;
+                    }
+                }
+            }
+            counterOfCages = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (L[i][j] == 1)
+                    {
+                        scene[y[counterOfCages]][x[counterOfCages]] = L[i][j];
+                        counterOfCages++;
+                        pastY[counterOfCages] = y[counterOfCages];
+                        pastX[counterOfCages] = x[counterOfCages];
+                    }
+                }
+            }
+            break;
+        case 3:
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (J[i][j] == 1)
+                    {
+                        scene[pastY[counterOfCages]][pastX[counterOfCages]] = 0;
+                        counterOfCages++;
+                    }
+                }
+            }
+            counterOfCages = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (J[i][j] == 1)
+                    {
+                        scene[y[counterOfCages]][x[counterOfCages]] = J[i][j];
+                        counterOfCages++;
+                        pastY[counterOfCages] = y[counterOfCages];
+                        pastX[counterOfCages] = x[counterOfCages];
+                    }
+                }
+            }
+            break;
+        case 4:
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (O[i][j] == 1)
+                    {
+                        scene[pastY[counterOfCages]][pastX[counterOfCages]] = 0;
+                        counterOfCages++;
+                    }
+                }
+            }
+            counterOfCages = 0;
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (O[i][j] == 1)
+                    {
+                        scene[y[counterOfCages]][x[counterOfCages]] = O[i][j];
+                        counterOfCages++;
+                        pastY[counterOfCages] = y[counterOfCages];
+                        pastX[counterOfCages] = x[counterOfCages];
+                    }
+                }
+            }
+            break;
+        case 5:
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (S[i][j] == 1)
+                    {
+                        scene[pastY[counterOfCages]][pastX[counterOfCages]] = 0;
+                        counterOfCages++;
+                    }
+                }
+            }
+            counterOfCages = 0;
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (S[i][j] == 1)
+                    {
+                        scene[y[counterOfCages]][x[counterOfCages]] = S[i][j];
+                        counterOfCages++;
+                        pastY[counterOfCages] = y[counterOfCages];
+                        pastX[counterOfCages] = x[counterOfCages];
+                    }
+                }
+            }
+            break;
+        case 6:
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (S[i][j] == 1)
+                    {
+                        scene[pastY[counterOfCages]][pastX[counterOfCages]] = 0;
+                        counterOfCages++;
+                    }
+                }
+            }
+            counterOfCages = 0;
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (T[i][j] == 1)
+                    {
+                        scene[y[counterOfCages]][x[counterOfCages]] = T[i][j];
+                        counterOfCages++;
+                        pastY[counterOfCages] = y[counterOfCages];
+                        pastX[counterOfCages] = x[counterOfCages];
+                    }
+                }
+            }
+            break;
+        case 7:
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (Z[i][j] == 1)
+                    {
+                        scene[pastY[counterOfCages]][pastX[counterOfCages]] = 0;
+                        counterOfCages++;
+                    }
+                }
+            }
+            counterOfCages = 0;
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (Z[i][j] == 1)
+                    {
+                        scene[y[counterOfCages]][x[counterOfCages]] = Z[i][j];
+                        counterOfCages++;
+                        pastY[counterOfCages] = y[counterOfCages];
+                        pastX[counterOfCages] = x[counterOfCages];
+                    }
+                }
+            }
+            break;
+        }
+    }
+} figure;
+
+void setConsoleSize()
+{ 
+    const int colConsole = 64;
+    const int rowConsole = 55;
+    HANDLE hNdl = GetStdHandle(STD_OUTPUT_HANDLE); 
+    SMALL_RECT windowSize ={0,0,colConsole-1,rowConsole-1}; 
+    SetConsoleWindowInfo(hNdl, TRUE, &windowSize); 
+    COORD bufferSize ={colConsole, rowConsole };
+    SetConsoleScreenBufferSize(hNdl, bufferSize);
+}
+
+void DrawTable(int X, int Y)
+{
+    const int pixelX = 510;
+    const int pixelY = 656;
+    for (int i = 0; i < pixelY; i++)            // Линия вниз (основное поле)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            SetPixel(hdc, X, Y, White);
+            X = 1;
+            Y++;
+        }
+    }
+    for (int i = 0; i < 1; i++)                 // Линия вправо (основное поле)
+    {
+        for (int j = 0; j < 330; j++)
+        {
+            SetPixel(hdc, X, Y, White);
+            X++;
+        }
+    }
+    for (int i = pixelY; i > 0; i--)            // Линия вверх (основное поле)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            SetPixel(hdc, X, Y, White);
+            Y--;
+        }
+    }
+    for (int i = 0; i < 1; i++)                 // Линия влево (основное поле)
+    {
+        for (int j = 330; j > 0; j--)
+        {
+            SetPixel(hdc, X, Y, White);
+            X--;
+        }
+    }
+    for (int i = 0; i < 1; i++)                 // Линия вправо (поле для результатов)
+    {
+        X = 330;
+        for (int j = 330; j < pixelX; j++)
+        {
+            SetPixel(hdc, X, Y, White);
+            X++;
+        }
+    }
+    for (int i = 0; i < pixelY; i++)            // Линия вниз (поле для результатов)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            SetPixel(hdc, X, Y, White);
+            Y++;
+        }
+    }
+    for (int i = 0; i < 1; i++)                 // Линия влево (поле для результатов)
+    {
+        for (int j = pixelX; j > 330; j--)
+        {
+            SetPixel(hdc, X, Y, White);
+            X--;
+        }
+    }
+}
+
+void DrawI(int X, int Y)
+{
+    int StartX = X;     // Значение Х, которое мы передали с самого начала
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 31; j++)
+        {
+            X = StartX;
+            for (int c = 0; c < 31; c++)
+            {
+                SetPixel(hdc, X, Y, White);
+                X++;
+            }
+            Y++;
+        }
+        for (int bl = 0; bl < 31; bl++)
+        {
+            SetPixel(hdc, X, Y, Black);
+            X++;
+        }
+        Y++;
+    }
+}
+
+void DrawJ(int X, int Y)
+{
+    int StartX = X;     // Значение Х, которое мы передали с самого начала
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 31; j++)
+        {
+            X = StartX;
+            for (int c = 0; c < 31; c++)
+            {
+                SetPixel(hdc, X, Y, White);
+                X++;
+            }
+            Y++;
+        }
+        for (int bl = 0; bl < 31; bl++)
+        {
+            SetPixel(hdc, X, Y, Black);
+            X++;
+        }
+        Y++;
+    }
+    for (int i = 0; i < 1; i++)
+    {
+        Y -= 32;
+        for (int j = 0; j < 31; j++)
+        {
+            X = StartX - 32;
+            for (int c = 0; c < 31; c++)
+            {
+                SetPixel(hdc, X, Y, White);
+                X++;
+            }
+            Y++;
+        }
+    }
+}
+
+void DrawL(int X, int Y)
+{
+    int StartX = X;     // Значение Х, которое мы передали с самого начала
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 31; j++)
+        {
+            X = StartX;
+            for (int c = 0; c < 31; c++)
+            {
+                SetPixel(hdc, X, Y, White);
+                X++;
+            }
+            Y++;
+        }
+        for (int bl = 0; bl < 31; bl++)
+        {
+            SetPixel(hdc, X, Y, Black);
+            X++;
+        }
+        Y++;
+    }
+    for (int i = 0; i < 1; i++)
+    {
+        Y -= 32;
+        for (int j = 0; j < 31; j++)
+        {
+            X = StartX + 32;
+            for (int c = 0; c < 31; c++)
+            {
+                SetPixel(hdc, X, Y, White);
+                X++;
+            }
+            Y++;
+        }
+    }
+}
+
+void SetCursor(int x, int y)
+{
+    HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD cursorPos;
+    cursorPos.X = x;
+    cursorPos.Y = y;
+    SetConsoleCursorPosition(hStdOut, cursorPos);
+}
+
+
+int main()
+{
+    setConsoleSize();
+
+    const int x = 3, y = 2;
+
+    int flag = 0;
+
+    while (true)
+    {
+        SetCursor(0, 0);
+
+        DrawTable(x, y);
+
+        if (GetAsyncKeyState(VK_LEFT)) for (int i = 0; i < 4; i++) figure.x[i]--;
+        if (GetAsyncKeyState(VK_RIGHT)) for (int i = 0; i < 4; i++) figure.x[i]++;
+
+        Sleep(500);
+
+        if (figure.timeForMove == 5)
+        {
+            figure.timeForMove = 0;
+            for (int i = 0; i < 4; i++) figure.y[i]++;
+        }
+
+        figure.timeForMove++;
+
+        if (flag == 0)
+        {
+            figure.CreateChooseOfFigure();
+            flag = 1;
+        }
+
+        figure.DrawRandomFigure();
+
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j < 20; j++)
+            {
+                cout << scene[i][j];
+            }
+            cout << endl;
+        }
+    }
+}
